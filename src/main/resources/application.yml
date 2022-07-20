@@ -1,0 +1,40 @@
+spring:
+  application:
+    name: el-devops
+  profiles:
+    active: dev
+camunda:
+  bpm:
+    webapp:
+      index-redirect-enabled: false
+    admin-user:
+      id: kermit
+      password: superSecret
+      first-name: kermit
+    filter:
+      create: All tasks
+    database:
+      type: mysql
+    job-execution:
+      max-pool-size: 100
+    generic-properties:
+      properties:
+        history: full
+        historyCleanupStrategy: removalTimeBased
+        historyCleanupBatchWindowStartTime: "03:00"
+        historyCleanupBatchWindowEndTime: "06:00"
+        historyRemovalTimeStrategy: start
+        historyTimeToLive: P90D
+        batchOperationHistoryTimeToLive: P90D
+
+management:
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+mybatis-plus:
+  mapper-locations: classpath:com/el/mapper/*.xml

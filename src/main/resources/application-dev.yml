@@ -1,0 +1,16 @@
+server:
+  port: 8899
+  servlet:
+    context-path: /api-el-devops
+
+spring:
+  datasource:
+    url: jdbc:mysql://172.20.27.53:3307/el-devops?useUnicode=true&characterEncoding=UTF-8&autoReconnect=true&useSSL=false&useOldAliasMetadataBehavior=true&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    call-setters-on-nulls: true # 设置Mybatis返回类型map时， 查询结果为空的字段，亦同样返回
