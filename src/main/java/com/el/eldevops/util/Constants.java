@@ -14,4 +14,8 @@ public class Constants {
     public static final String ACTIVITY_TYPE_EXCLUSIVEGATEWAY = "exclusiveGateway"; //网关
     public static final String ACTIVITY_TYPE_INTERMEDIATECATCHEVENT = "intermediateCatchEvent"; //延迟
     public static final String ACTIVITY_TYPE_CALLACTIVITY = "callActivity";// 子流程callActivity
+
+    // ========================参数归属：1全局参数(剧本参数)，2环节参数(服务参数)=======================================
+    public static final int PARAMS_OF_GLOBAL = 1; // 1全局参数(剧本参数)
+    public static final int PARAMS_OF_SERVICE = 2; // 2环节参数(服务参数)
 }
