@@ -9,4 +9,6 @@ import com.el.eldevops.model.PlaybookInstEntity;
  */
 public interface IPlaybookInstanceService {
     void insert(PlaybookInstEntity playbookInstEntity);
+
+    void instStatusChange(String processInstId, int status);
 }
