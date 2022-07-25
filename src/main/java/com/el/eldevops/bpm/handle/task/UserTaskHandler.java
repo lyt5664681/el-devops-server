@@ -1,8 +1,7 @@
 package com.el.eldevops.bpm.handle.task;
 
-import com.central.msargus.soar.impl.service.IPlaybookInstService;
-import com.central.msargus.soar.impl.service.ISoarActivityInstService;
 import com.el.eldevops.bpm.handle.AbstractTaskHandler;
+import com.el.eldevops.service.IExecutionRecordService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,11 +18,7 @@ public class UserTaskHandler extends AbstractTaskHandler {
 
     @Lazy
     @Autowired
-    private ISoarActivityInstService soarActivityInstService;
-
-    @Lazy
-    @Autowired
-    private IPlaybookInstService playbookInstService;
+    private IExecutionRecordService executionRecordService;
 
     @Override
     public void create(DelegateTask delegateTask) {
@@ -31,20 +26,18 @@ public class UserTaskHandler extends AbstractTaskHandler {
 
         DelegateExecution execution = delegateTask.getExecution();
         String taskId = delegateTask.getId();
-        String activityId = execution.getCurrentActivityId();
         String activityInstId = execution.getActivityInstanceId();
-        String activityName = execution.getCurrentActivityName();
         String processInstID = delegateTask.getProcessInstanceId();
 
         // 增加活动记录信息
-        soarActivityInstService.add(processInstID, activityId, activityInstId, activityName, taskId);
+        executionRecordService.record(processInstID, activityInstId, taskId, null);
     }
 
     @Override
     public void assignment(DelegateTask delegateTask) {
         String taskId = delegateTask.getId();
         String assignee = delegateTask.getAssignee();
-        soarActivityInstService.entrustByTaskId(taskId, assignee); // 增加环节处理人
+//        soarActivityInstService.entrustByTaskId(taskId, assignee); // 增加环节处理人
     }
 
     @Override

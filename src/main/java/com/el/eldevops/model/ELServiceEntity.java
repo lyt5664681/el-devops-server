@@ -13,7 +13,7 @@ import lombok.Data;
 @TableName("el_service")
 @Data
 @ApiModel("服务")
-public class ServiceEntity {
+public class ELServiceEntity {
     @TableId(type = IdType.UUID, value = "service_id")
     private String serviceId;
     

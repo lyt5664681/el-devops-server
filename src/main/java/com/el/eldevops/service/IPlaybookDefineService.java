@@ -8,5 +8,5 @@ import com.el.eldevops.model.PlaybookDefineEntity;
  * @date 2022/7/25 10:07
  */
 public interface IPlaybookDefineService {
-    public PlaybookDefineEntity getPlaybookDefineByProcessDefId(String processDefId);
+    PlaybookDefineEntity getPlaybookDefineByProcessDefId(String processDefId);
 }

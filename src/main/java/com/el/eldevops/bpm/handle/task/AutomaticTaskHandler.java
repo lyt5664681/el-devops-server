@@ -1,15 +1,14 @@
 package com.el.eldevops.bpm.handle.task;
 
-import com.central.common.model.Result;
-import com.central.msargus.soar.impl.bpm.executor.SoarServiceExecutor;
-import com.central.msargus.soar.impl.bpm.executor.SoarServiceExecutorFactory;
-import com.central.msargus.soar.impl.model.SoarPlaybookEntity;
-import com.central.msargus.soar.impl.model.SoarServiceEntity;
-import com.central.msargus.soar.impl.service.IPlaybookService;
-import com.central.msargus.soar.impl.service.ISoarActivityInstService;
-import com.central.msargus.soar.impl.service.ISoarServiceService;
-import com.central.msargus.soar.impl.util.SpringContextUtils;
+import com.el.eldevops.bpm.executor.ServiceExecutorFactory;
+import com.el.eldevops.bpm.executor.ServiceExecutorInterface;
 import com.el.eldevops.bpm.handle.AbstractTaskHandler;
+import com.el.eldevops.model.ELServiceEntity;
+import com.el.eldevops.model.PlaybookDefineEntity;
+import com.el.eldevops.service.IELServiceService;
+import com.el.eldevops.service.IExecutionRecordService;
+import com.el.eldevops.service.IPlaybookDefineService;
+import com.el.eldevops.util.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -31,33 +30,23 @@ import java.util.List;
 public class AutomaticTaskHandler extends AbstractTaskHandler {
 
     @Autowired
-    private SoarServiceExecutorFactory soarServiceExecutorFactory;
+    private ServiceExecutorFactory executorFactory;
+
+    @Lazy
+    @Autowired
+    private IExecutionRecordService executionRecordService;
+
+    @Lazy
+    @Autowired
+    private IPlaybookDefineService playbookDefineService;
+
+    @Lazy
+    @Autowired
+    private IELServiceService elServiceService;
 
     @Lazy
     @Autowired
     private RuntimeService runtimeService;
-
-    @Lazy
-    @Autowired
-    private ISoarActivityInstService soarActivityInstService;
-
-
-    @Override
-    public void execute(DelegateTask delegateTask) {
-        switch (delegateTask.getEventName()) {
-            case "create":
-                create(delegateTask);
-                break;
-            case "assignment":
-                assignment(delegateTask);
-                break;
-            case "complete":
-                complete(delegateTask);
-                break;
-            default:
-                break;
-        }
-    }
 
     @Override
     public void create(DelegateTask delegateTask) {
@@ -69,7 +58,7 @@ public class AutomaticTaskHandler extends AbstractTaskHandler {
         String processInstID = delegateTask.getProcessInstanceId();
 
         // 增加活动记录信息
-        soarActivityInstService.add(processInstID, activityId, activityInstId, activityName, taskId);
+        executionRecordService.record(processInstID, activityInstId, taskId, null);
     }
 
     @Override
@@ -81,26 +70,22 @@ public class AutomaticTaskHandler extends AbstractTaskHandler {
         String activityId = execution.getCurrentActivityId();
 
         // step2 : 查询剧本信息，查询当前节点关联的服务信息
-        IPlaybookService playbookService = SpringContextUtils.getBean("playbookServiceImpl");
-        SoarPlaybookEntity playbook = playbookService.getPlaybookByProcessDefId(processDefId);
-        String bookId = playbook.getBookId();
+        PlaybookDefineEntity playbookDefineEntity = playbookDefineService.getPlaybookDefineByProcessDefId(processDefId);
+        String bookDefId = playbookDefineEntity.getBookDefId();
         // 查询服务信息,此处查出的服务信息应该是唯一的
-        ISoarServiceService soarServiceService = SpringContextUtils.getBean("soarServiceServiceImpl");
-        List<SoarServiceEntity> soarServiceEntities = soarServiceService.getActivityService(bookId, activityId);
+        List<ELServiceEntity> serviceEntities = elServiceService.getActivityService(bookDefId, activityId);
 
-        if (soarServiceEntities.size() <= 0) {
-            // 未查询到绑定的服务
+        if (serviceEntities.size() <= 0) {
             log.info("=====================未查询到绑定的服务=====================");
             delegateTask.complete();
             return;
-//            throw new BusinessException("未查询到绑定的服务");
         }
 
         // step3 : 调用服务
-        SoarServiceEntity serviceEntity = soarServiceService.get(soarServiceEntities.get(0).getServiceId());
+        ELServiceEntity serviceEntity = serviceEntities.get(0);
         String protocal = serviceEntity.getProtocol();
-        SoarServiceExecutor serviceExecutor = soarServiceExecutorFactory.newInstance(protocal);
-        Result result = serviceExecutor.execute(delegateTask, playbook, serviceEntity);
+        ServiceExecutorInterface serviceExecutor = executorFactory.newInstance(protocal);
+        Result result = serviceExecutor.execute(delegateTask, playbookDefineEntity, serviceEntity);
 
         Integer resCode = result.getResp_code();
         if (resCode == 0) { // 成功,完成工作项
@@ -112,7 +97,7 @@ public class AutomaticTaskHandler extends AbstractTaskHandler {
             runtimeService.updateProcessInstanceSuspensionState().byProcessInstanceQuery(processInstanceQuery).suspendAsync();
         }
     }
-    
+
     @Override
     public void complete(DelegateTask delegateTask) {
     }

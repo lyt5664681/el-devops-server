@@ -9,7 +9,7 @@ import org.camunda.bpm.engine.delegate.DelegateTask;
  */
 public abstract class AbstractTaskHandler {
 
-    protected void execute(DelegateTask delegateTask) {
+    public void execute(DelegateTask delegateTask) {
         String eventName = delegateTask.getEventName();
 
         switch (eventName) {

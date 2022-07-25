@@ -2,13 +2,16 @@ package com.el.eldevops.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.el.eldevops.config.exception.BusinessException;
+import com.el.eldevops.mapper.ELServiceMapper;
 import com.el.eldevops.mapper.ServiceOnActivityMapper;
+import com.el.eldevops.model.ELServiceEntity;
 import com.el.eldevops.model.ServiceOnActivityEntity;
 import com.el.eldevops.service.IELServiceService;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -22,6 +25,9 @@ public class ELServiceServiceImpl implements IELServiceService {
 
     @Resource
     private ServiceOnActivityMapper serviceOnActivityMapper;
+
+    @Resource
+    private ELServiceMapper elServiceMapper;
 
     /**
      * @return boolean
@@ -70,5 +76,10 @@ public class ELServiceServiceImpl implements IELServiceService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<ELServiceEntity> getActivityService(String bookId, String activityId) {
+        return this.elServiceMapper.getActivityService(bookId, activityId);
     }
 }

@@ -6,6 +6,10 @@ import com.central.msargus.soar.impl.bpm.handler.AutomaticTaskHandler;
 import com.central.msargus.soar.impl.bpm.handler.UserTaskHandler;
 import com.central.msargus.soar.impl.service.IPlaybookInstService;
 import com.central.msargus.soar.impl.util.Constants;
+import com.el.eldevops.bpm.handle.task.AutomaticTaskHandler;
+import com.el.eldevops.bpm.handle.task.UserTaskHandler;
+import com.el.eldevops.service.IPlaybookInstanceService;
+import com.el.eldevops.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.TaskListener;
@@ -33,7 +37,7 @@ public class GlobalTaskListener implements TaskListener {
 
     @Lazy
     @Autowired
-    private IPlaybookInstService playbookInstService;
+    private IPlaybookInstanceService playbookInstanceService;
 
     @Override
     public void notify(DelegateTask delegateTask) {
@@ -43,8 +47,6 @@ public class GlobalTaskListener implements TaskListener {
         String eventName = delegateTask.getEventName();
         String assignee = delegateTask.getAssignee();
         String currentActivityName = delegateTask.getExecution().getCurrentActivityName();
-
-        playbookInstService.fillingByProcessInstId(processInstanceId, currentActivityName, assignee); //更新剧本实例当前环节与当前环节处理人
         /**
          * 所有任务都用usertask来做，如果assignee是AUTOMATIC则认为是自动任务，用automaticTaskHandler处理
          * */

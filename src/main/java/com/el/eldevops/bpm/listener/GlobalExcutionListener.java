@@ -1,10 +1,6 @@
 package com.el.eldevops.bpm.listener;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.central.msargus.soar.impl.bpm.handler.*;
-import com.central.msargus.soar.impl.service.IPlaybookInstService;
-import com.central.msargus.soar.impl.util.Constants;
+import com.el.eldevops.bpm.handle.execution.*;
 import com.el.eldevops.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
@@ -26,9 +22,11 @@ import javax.annotation.Resource;
 @Component
 public class GlobalExcutionListener implements ExecutionListener {
 
-
     @Resource
     private StartEventExecutionHandler startEventExecutionHandler;
+
+    @Resource
+    private EndEventExecutionHandler endEventExecutionHandler;
 
     @Resource
     private ExclusiveGatewayExecutionHandler exclusiveGatewayExecutionHandler;
@@ -46,17 +44,13 @@ public class GlobalExcutionListener implements ExecutionListener {
     @Autowired
     TransactionDefinition transactionDefinition;
 
-    @Autowired
-    private IPlaybookInstService playbookInstService;
-
     @Override
     public void notify(DelegateExecution execution) throws Exception {
-        log.info("execution------------------> " + execution.getCurrentActivityName() + "----------->" + execution.getEventName() + "----->" +
-                execution.getBpmnModelElementInstance().getElementType().getTypeName() + "---->entity:" + JSON.toJSONString(((ExecutionEntity) execution).getPersistentState(), SerializerFeature.DisableCircularReferenceDetect));
+        log.info("execution---> " + execution.getCurrentActivityName() + "-->" + execution.getEventName() + "-->" +
+                execution.getBpmnModelElementInstance().getElementType().getTypeName());
         String processInstID = execution.getProcessInstanceId();
         String activityId = execution.getCurrentActivityId();
         String activityName = execution.getCurrentActivityName();
-
 
         try {
             String elementType = execution.getBpmnModelElementInstance().getElementType().getTypeName();
@@ -65,7 +59,7 @@ public class GlobalExcutionListener implements ExecutionListener {
                     startEventExecutionHandler.execute(execution);
                     break;
                 case Constants.ACTIVITY_TYPE_ENDEVENT:
-                    EndEventExecutionHandler.getSingleton().execute(execution);
+                    endEventExecutionHandler.execute(execution);
                     break;
                 case Constants.ACTIVITY_TYPE_USERTASK:
                     // do nothing
@@ -90,6 +84,7 @@ public class GlobalExcutionListener implements ExecutionListener {
                     break;
             }
         } catch (Exception e) {
+            // todo: 挂起流程实例,添加异常信息
             log.error("流程执行异常，挂起流程实例ID：" + processInstID + " 活动ID:" + activityId + " 活动名称:" + activityName, e);
         }
     }

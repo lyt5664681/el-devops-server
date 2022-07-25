@@ -24,4 +24,12 @@ public class Constants {
     public static final int PLAYBOOK_INST_STATUS_PAUSE = 2; //暂停
     public static final int PLAYBOOK_INST_STATUS_EXCEPTION = 3; //异常终止
     public static final int PLAYBOOK_INST_STATUS_FINISHED = 4; //已完结
+
+    //=======================自动任务的标识========================================
+    public static final String TASK_EVENT_TYPE_AUTOMATIC = "AUTOMATIC";
+
+    //=======================服务协议========================================
+    public static final String SERVICE_PROTOCAL_LOCAL = "LOCAL"; // 本地调用
+    public static final String SERVICE_PROTOCAL_HTTP = "HTTP"; // 服务协议:http
+    public static final String SERVICE_PROTOCAL_PYTHON = "PYTHON"; // 服务协议:python
 }
