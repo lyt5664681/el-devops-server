@@ -36,7 +36,7 @@ public class PlaybookInstEntity {
     private String bookDefName;
 
     @TableField("book_inst_name")
-    private String book_inst_name;
+    private String bookInstName;
 
     @TableField("book_inst_desc")
     private String bookInstDesc;

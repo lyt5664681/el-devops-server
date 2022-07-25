@@ -18,4 +18,10 @@ public class Constants {
     // ========================参数归属：1全局参数(剧本参数)，2环节参数(服务参数)=======================================
     public static final int PARAMS_OF_GLOBAL = 1; // 1全局参数(剧本参数)
     public static final int PARAMS_OF_SERVICE = 2; // 2环节参数(服务参数)
+
+    // ========================剧本实例状态:1运行中,2暂停,3异常终止,4已完结=======================================
+    public static final int PLAYBOOK_INST_STATUS_RUNNING = 1; //运行中
+    public static final int PLAYBOOK_INST_STATUS_PAUSE = 2; //暂停
+    public static final int PLAYBOOK_INST_STATUS_EXCEPTION = 3; //异常终止
+    public static final int PLAYBOOK_INST_STATUS_FINISHED = 4; //已完结
 }

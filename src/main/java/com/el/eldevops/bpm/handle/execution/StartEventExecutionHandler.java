@@ -1,17 +1,12 @@
 package com.el.eldevops.bpm.handle.execution;
 
-import com.central.common.exception.BusinessException;
-import com.central.msargus.soar.impl.model.SoarParamsDefEntity;
-import com.central.msargus.soar.impl.model.SoarPlaybookEntity;
-import com.central.msargus.soar.impl.service.IPlaybookInstService;
-import com.central.msargus.soar.impl.service.IPlaybookService;
-import com.central.msargus.soar.impl.service.ISoarParamsDefService;
-import com.central.msargus.soar.impl.service.ISoarParamsService;
-import com.central.msargus.soar.impl.util.ParamsUtil;
-import com.central.msargus.soar.impl.util.SpringContextUtils;
+import com.el.eldevops.bpm.handle.ExecutionHandler;
 import com.el.eldevops.config.exception.BusinessException;
 import com.el.eldevops.model.PlaybookDefineEntity;
+import com.el.eldevops.model.PlaybookInstEntity;
 import com.el.eldevops.service.IPlaybookDefineService;
+import com.el.eldevops.service.IPlaybookInstanceService;
+import com.el.eldevops.util.Constants;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.RuntimeService;
@@ -47,11 +42,7 @@ public class StartEventExecutionHandler implements ExecutionHandler {
 
     @Lazy
     @Autowired
-    private ISoarParamsService soarParamsService;
-
-    @Lazy
-    @Autowired
-    private ISoarParamsDefService soarParamsDefService;
+    private IPlaybookInstanceService playbookInstanceService;
 
     @Override
     public void execute(DelegateExecution execution) {
@@ -123,8 +114,16 @@ public class StartEventExecutionHandler implements ExecutionHandler {
 
         // step5 : 创建剧本实例
         Map<String, Object> variables = execution.getVariables();
-        playbookInstService.createPlayBookInst(bookId, processInstID, rootProcessInstId, bookName, bookType, bookXML, bookJson, createBy, execWay);
-        log.info("创建剧本实例成功，processInstID={},bookId={},bookName={}", processInstID, bookId, bookName);
+        String bookInstName = (String) Optional.ofNullable(variables.get("bookInstName")).orElse("");
+
+        PlaybookInstEntity playbookInstEntity = new PlaybookInstEntity();
+        playbookInstEntity.setProcessInstId(processInstID);
+        playbookInstEntity.setBookDefName(bookName);
+        playbookInstEntity.setBookInstName(bookInstName);
+        playbookInstEntity.setBookDefId(bookDefId);
+        playbookInstEntity.setStatus(Constants.PLAYBOOK_INST_STATUS_RUNNING);
+        playbookInstanceService.insert(playbookInstEntity);
+        log.info("创建剧本实例成功，processInstID={},bookId={},bookName={}", processInstID, bookDefId, bookName);
     }
 
     @Override
