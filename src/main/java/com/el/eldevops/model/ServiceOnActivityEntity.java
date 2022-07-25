@@ -11,7 +11,7 @@ import lombok.Data;
  * @description:
  * @date 2022/7/21 13:45
  */
-@TableName("service_on_activity")
+@TableName("el_service_on_activity")
 @Data
 public class ServiceOnActivityEntity {
     @TableId(type = IdType.UUID, value = "sid")

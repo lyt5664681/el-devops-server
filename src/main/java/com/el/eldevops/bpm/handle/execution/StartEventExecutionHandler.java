@@ -9,6 +9,9 @@ import com.central.msargus.soar.impl.service.ISoarParamsDefService;
 import com.central.msargus.soar.impl.service.ISoarParamsService;
 import com.central.msargus.soar.impl.util.ParamsUtil;
 import com.central.msargus.soar.impl.util.SpringContextUtils;
+import com.el.eldevops.config.exception.BusinessException;
+import com.el.eldevops.model.PlaybookDefineEntity;
+import com.el.eldevops.service.IPlaybookDefineService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.RuntimeService;
@@ -40,7 +43,7 @@ public class StartEventExecutionHandler implements ExecutionHandler {
 
     @Lazy
     @Autowired
-    private IPlaybookService playbookService;
+    private IPlaybookDefineService playbookDefineService;
 
     @Lazy
     @Autowired
@@ -90,12 +93,9 @@ public class StartEventExecutionHandler implements ExecutionHandler {
         String superExcutionId = executionEntity.getSuperExecutionId();
 
         // step3 :获得剧本信息
-        SoarPlaybookEntity playbook = playbookService.getPlaybookByProcessDefId(processDefId);
-        String bookId = playbook.getBookId();
-        int bookType = playbook.getBookType();
-        String bookName = playbook.getBookName();
-        String bookXML = playbook.getBookXml();
-        String bookJson = playbook.getBookJson();
+        PlaybookDefineEntity playbookDefine = playbookDefineService.getPlaybookDefineByProcessDefId(processDefId);
+        String bookDefId = playbookDefine.getBookDefId();
+        String bookName = playbookDefine.getBookName();
 
         // step4 : 处理子流程
         String rootProcessInstId = "";
@@ -105,28 +105,24 @@ public class StartEventExecutionHandler implements ExecutionHandler {
 
             superProcessInstId = executionEntity.getSuperExecution().getProcessInstanceId();
 
-            // 获得剧本参数
-            List<SoarParamsDefEntity> soarParamsEntities = soarParamsDefService.listGlobalParamsByBookId(bookId);
-            // 定义流程参数
-            Map<String, Object> processParams = new HashMap<>();
-            ParamsUtil paramsUtil = new ParamsUtil();
-            for (SoarParamsDefEntity param : soarParamsEntities) {
-                String paramName = param.getParamName();
-                Object paramValue = param.getParamValue();
-                // 处理参数，上层参数通过name传递，以value作为变量储存在变量池中
-                Object variable = execution.getProcessInstance().getVariable(paramName);
-                String variableKey = paramsUtil.paramConvert(paramValue.toString());
-                processParams.put(variableKey, variable);
-            }
-            execution.getProcessInstance().setVariables(processParams);
+//            // 获得剧本参数
+//            List<SoarParamsDefEntity> soarParamsEntities = soarParamsDefService.listGlobalParamsByBookId(bookId);
+//            // 定义流程参数
+//            Map<String, Object> processParams = new HashMap<>();
+//            ParamsUtil paramsUtil = new ParamsUtil();
+//            for (SoarParamsDefEntity param : soarParamsEntities) {
+//                String paramName = param.getParamName();
+//                Object paramValue = param.getParamValue();
+//                // 处理参数，上层参数通过name传递，以value作为变量储存在变量池中
+//                Object variable = execution.getProcessInstance().getVariable(paramName);
+//                String variableKey = paramsUtil.paramConvert(paramValue.toString());
+//                processParams.put(variableKey, variable);
+//            }
+//            execution.getProcessInstance().setVariables(processParams);
         }
 
         // step5 : 创建剧本实例
         Map<String, Object> variables = execution.getVariables();
-        String createBy = (String) Optional.ofNullable(variables.get("create_by")).orElse("");
-        String execWay = (String) Optional.ofNullable(variables.get("exec_way")).orElse("规则触发");
-
-        IPlaybookInstService playbookInstService = SpringContextUtils.getBean("playbookInstServiceImpl");
         playbookInstService.createPlayBookInst(bookId, processInstID, rootProcessInstId, bookName, bookType, bookXML, bookJson, createBy, execWay);
         log.info("创建剧本实例成功，processInstID={},bookId={},bookName={}", processInstID, bookId, bookName);
     }

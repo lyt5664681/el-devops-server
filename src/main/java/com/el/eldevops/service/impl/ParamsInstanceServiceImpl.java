@@ -2,7 +2,7 @@ package com.el.eldevops.service.impl;
 
 import com.el.eldevops.mapper.ParamsInstanceMapper;
 import com.el.eldevops.model.ParamsInstanceEntity;
-import com.el.eldevops.model.ParamsInstanceVO;
+import com.el.eldevops.model.vo.ParamsInstanceVO;
 import com.el.eldevops.service.IParamsInstanceService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Primary;

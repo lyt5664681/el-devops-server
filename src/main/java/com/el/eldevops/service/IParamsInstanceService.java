@@ -1,6 +1,6 @@
 package com.el.eldevops.service;
 
-import com.el.eldevops.model.ParamsInstanceVO;
+import com.el.eldevops.model.vo.ParamsInstanceVO;
 
 /**
  * @author YunTao.Li
