@@ -1,11 +1,11 @@
 package com.el.eldevops.bpm.executor.impl;
 
-import com.central.common.model.Result;
-import com.central.msargus.soar.impl.bpm.model.TaskExecuteVO;
-import com.central.msargus.soar.impl.model.SoarParamsEntity;
-import com.central.msargus.soar.impl.model.SoarPlaybookEntity;
-import com.central.msargus.soar.impl.model.SoarServiceEntity;
 import com.el.eldevops.bpm.executor.ServiceExecutorInterface;
+import com.el.eldevops.bpm.model.TaskExecuteVO;
+import com.el.eldevops.model.ELServiceEntity;
+import com.el.eldevops.model.ParamsInstanceEntity;
+import com.el.eldevops.model.PlaybookDefineEntity;
+import com.el.eldevops.util.Result;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.springframework.stereotype.Component;
 
@@ -19,12 +19,12 @@ import java.util.List;
 @Component
 public class HttpRemoteServiceExecutor implements ServiceExecutorInterface {
     @Override
-    public Result execute(DelegateTask delegateTask, SoarPlaybookEntity playbook, SoarServiceEntity serviceEntity) {
-        return Result.succeed();
+    public Result execute(DelegateTask delegateTask, PlaybookDefineEntity playbookDefineEntity, ELServiceEntity serviceEntity) {
+        return null;
     }
 
     @Override
-    public Object call(List<SoarParamsEntity> soarParamsEntityList, SoarServiceEntity serviceEntity, TaskExecuteVO taskExecuteVO) throws Exception {
+    public Object call(List<ParamsInstanceEntity> soarParamsEntityList, ELServiceEntity serviceEntity, TaskExecuteVO taskExecuteVO) throws Exception {
         return null;
     }
 }

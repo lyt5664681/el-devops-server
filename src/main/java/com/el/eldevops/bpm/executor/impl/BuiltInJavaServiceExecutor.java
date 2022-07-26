@@ -12,6 +12,12 @@ import com.central.msargus.soar.impl.service.ISoarActivityInstService;
 import com.central.msargus.soar.impl.service.ISoarParamsService;
 import com.central.msargus.soar.impl.util.Constants;
 import com.el.eldevops.bpm.executor.ServiceExecutorInterface;
+import com.el.eldevops.bpm.model.TaskExecuteVO;
+import com.el.eldevops.model.ELServiceEntity;
+import com.el.eldevops.model.ParamsInstanceEntity;
+import com.el.eldevops.model.PlaybookDefineEntity;
+import com.el.eldevops.service.IParamsInstanceService;
+import com.el.eldevops.util.Constants;
 import com.el.eldevops.util.Result;
 import com.google.gson.Gson;
 import org.apache.commons.lang3.StringUtils;
@@ -37,12 +43,14 @@ import java.util.stream.Collectors;
 @Component
 public class BuiltInJavaServiceExecutor implements ServiceExecutorInterface {
 
+    static final ThreadLocal<List<ParamInstPOJO>> ctx = new ThreadLocal<List<ParamInstPOJO>>();
+
     @Autowired
     private ApplicationContext applicationContext;
 
     @Lazy
     @Autowired
-    private ISoarParamsService soarParamsService;
+    private IParamsInstanceService iParamsInstanceService;
 
     @Resource
     private SoarParamAdapter soarParamAdapter;
@@ -55,14 +63,13 @@ public class BuiltInJavaServiceExecutor implements ServiceExecutorInterface {
     private IPlaybookInstService playbookInstService;
 
     @Override
-    public Result execute(DelegateTask delegateTask, SoarPlaybookEntity playbook, SoarServiceEntity serviceEntity) {
+    public Result execute(DelegateTask delegateTask, PlaybookDefineEntity playbook, ELServiceEntity serviceEntity) {
         Gson gson = new Gson();
 
         //step1: 获得所有参数，包括剧本信息、活动信息、服务信息
         DelegateExecution execution = delegateTask.getExecution();
         ExecutionEntity executionEntity = (ExecutionEntity) execution;
-        String script = serviceEntity.getPythonScript();
-        String bookId = playbook.getBookId();
+        String bookId = playbook.getBookDefId();
         String activityId = executionEntity.getActivityId();
         String activityInstId = executionEntity.getActivityInstanceId();
         String serviceId = serviceEntity.getServiceId();
@@ -73,7 +80,7 @@ public class BuiltInJavaServiceExecutor implements ServiceExecutorInterface {
 
 
         // step2 : 查询服务所绑定的参数列表
-        List<SoarParamsEntity> soarParamsEntityList = this.soarParamsService.listParams(bookId, activityId, serviceId);
+        List<ParamsInstanceEntity> paramsInstanceEntityList = iParamsInstanceService.getParamsInstance(bookId, activityId, serviceId);
         List<ParamInstPOJO> paramInstPOJOList = new ArrayList<>();
 
         // step2.2 : 设置相关参数
@@ -87,7 +94,7 @@ public class BuiltInJavaServiceExecutor implements ServiceExecutorInterface {
              * step4 : 执行脚本
              * step5 : 获得脚本执行结果
              */
-            paramInstPOJOList = soarParamAdapter.paramAdapter(soarParamsEntityList, processInstId);
+            paramInstPOJOList = soarParamAdapter.paramAdapter(paramsInstanceEntityList, processInstId);
             Object result = this.call(soarParamsEntityList, serviceEntity, taskExecuteVO);
 
             // step5 : 拿到执行结果设置出参
@@ -125,7 +132,7 @@ public class BuiltInJavaServiceExecutor implements ServiceExecutorInterface {
      * @date 2022/6/7 10:46
      */
     @Override
-    public Object call(List<SoarParamsEntity> soarParamsEntityList, SoarServiceEntity serviceEntity, TaskExecuteVO taskExecuteVO) throws Exception {
+    public Object call(List<ParamsInstanceEntity> soarParamsEntityList, ELServiceEntity serviceEntity, TaskExecuteVO taskExecuteVO) throws Exception {
         String serviceId = serviceEntity.getServiceId();
         String serviceUrl = serviceEntity.getUrl();
         String method = serviceEntity.getMethod();
@@ -133,12 +140,6 @@ public class BuiltInJavaServiceExecutor implements ServiceExecutorInterface {
 
         // step3 : 对参数进行适配与赋值，并获得适配后的参数列表
         List<ParamInstPOJO> paramInstPOJOList = soarParamAdapter.paramAdapter(soarParamsEntityList, processInstId);
-
-        if ("bannedIP".equals(method) || "bannedIPByTime".equals(method)) {
-            ParamInstPOJO tempPOJO = new ParamInstPOJO();
-            tempPOJO.setParamValue(String.valueOf(processInstId));
-            paramInstPOJOList.add(tempPOJO);
-        }
 
         Object[] inputParamsValues = paramInstPOJOList.stream().map(ParamInstPOJO::getParamValue).collect(Collectors.toList()).toArray();
         Class[] inputParamClasses = new Class[paramInstPOJOList.size()];
@@ -156,17 +157,10 @@ public class BuiltInJavaServiceExecutor implements ServiceExecutorInterface {
             }
         }
 
-        Class cls1 = Class.forName(serviceUrl);
-        Object bean = applicationContext.getBean(cls1);
-        // 额外的属性注入，将serviceId也注入到方法里去，如果类上没有相关set方法说明业务constructor不需要serviceId
-        try {
-            Method setServiceMethod = cls1.getDeclaredMethod("setServiceId", String.class);
-            setServiceMethod.invoke(bean, serviceId);
-        } catch (Exception e1) {
-            // do nothing 额外的属性注入 没有也没关系
-        }
+        Class cls = Class.forName(serviceUrl);
+        Object bean = applicationContext.getBean(cls);
 
-        Method m = cls1.getDeclaredMethod(method, inputParamClasses); //传类型
+        Method m = cls.getDeclaredMethod(method, inputParamClasses); //传类型
         Object result = m.invoke(bean, inputParamsValues); //传值
 
         return result;

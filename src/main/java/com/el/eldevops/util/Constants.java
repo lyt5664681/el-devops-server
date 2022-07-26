@@ -32,4 +32,17 @@ public class Constants {
     public static final String SERVICE_PROTOCAL_LOCAL = "LOCAL"; // 本地调用
     public static final String SERVICE_PROTOCAL_HTTP = "HTTP"; // 服务协议:http
     public static final String SERVICE_PROTOCAL_PYTHON = "PYTHON"; // 服务协议:python
+
+    //=======================参数数据类型========================================
+    public static final String PARAMS_DATA_TYPE_STRING = "String"; // 字符串
+    public static final String PARAMS_DATA_TYPE_BOOLEAN = "Boolean"; // 布尔
+    public static final String PARAMS_DATA_TYPE_INTEGER = "Integer"; // 整形
+
+    //=======================参数值类型========================================
+    public static final int PARAMS_VALUETYPE_CONSTANT = 1; // 常量
+    public static final int PARAMS_VALUETYPE_VARIABLE = 2; // 变量
+
+    // =======================参数类型========================================
+    public static final int PARAMS_TYPE_OUTPUT = 1; // 出参
+    public static final int PARAMS_TYPE_INPUT = 2; // 入参
 }
