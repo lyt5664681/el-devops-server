@@ -18,5 +18,5 @@ public interface ELServiceMapper extends BaseMapper<ELServiceEntity> {
     @Select("SELECT * FROM soar_service t1 WHERE EXISTS " +
             "( SELECT 1 FROM soar_service_on_activity tt1 WHERE tt1.book_id = #{bookId} " +
             "AND tt1.activity_id = #{activityId} AND t1.service_id = tt1.service_id )")
-    List<ELServiceEntity> getActivityService(@Param("bookId") String bookId, @Param("activityId") String activityId)
+    List<ELServiceEntity> getActivityService(@Param("bookId") String bookId, @Param("activityId") String activityId);
 }

@@ -1,9 +1,8 @@
 package com.el.eldevops.bpm.handle.execution;
 
-import com.central.common.exception.BusinessException;
-import com.central.msargus.soar.impl.service.ISoarActivityInstService;
 import com.el.eldevops.bpm.handle.ExecutionHandler;
 import com.el.eldevops.config.exception.BusinessException;
+import com.el.eldevops.service.IExecutionRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
@@ -21,7 +20,7 @@ import org.springframework.stereotype.Component;
 public class ExclusiveGatewayExecutionHandler implements ExecutionHandler {
     @Lazy
     @Autowired
-    private ISoarActivityInstService soarActivityInstService;
+    private IExecutionRecordService executionRecordService;
 
     @Override
     public void execute(DelegateExecution execution) {
@@ -63,10 +62,7 @@ public class ExclusiveGatewayExecutionHandler implements ExecutionHandler {
         String activityInstId = execution.getActivityInstanceId();
         String activityName = execution.getCurrentActivityName();
         String executionId = execution.getId();
-        soarActivityInstService.add(processInstID, activityId, activityInstId, activityName, executionId);
-
-        // 如果需要条件数据则这样取
-//        ((TransitionImpl) ((ExecutionEntityReferencer) ((ExecutionEntity) execution).variableStore.observers.get(0)).execution.transitionsToTake.get(0)).properties.properties.get("conditionText").toString();
+        executionRecordService.record(processInstID, activityInstId, executionId, null);
     }
 
     @Override

@@ -1,7 +1,8 @@
 package com.el.eldevops.bpm.handle.execution;
 
-import com.central.common.exception.BusinessException;
-import com.central.msargus.soar.impl.service.ISoarActivityInstService;
+import com.el.eldevops.bpm.handle.ExecutionHandler;
+import com.el.eldevops.config.exception.BusinessException;
+import com.el.eldevops.service.IExecutionRecordService;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Component;
 public class IntermediateEventExecutionHandler implements ExecutionHandler {
     @Lazy
     @Autowired
-    private ISoarActivityInstService soarActivityInstService;
+    private IExecutionRecordService executionRecordService;
 
     @Override
     public void execute(DelegateExecution execution) {
@@ -49,18 +50,11 @@ public class IntermediateEventExecutionHandler implements ExecutionHandler {
         String activityInstId = execution.getActivityInstanceId();
         String activityName = execution.getCurrentActivityName();
         String executionId = execution.getId();
-        soarActivityInstService.add(processInstID, activityId, activityInstId, activityName, executionId, "开始");
+        executionRecordService.record(processInstID, activityInstId, executionId, null);
     }
 
     @Override
     public void end(DelegateExecution execution) {
-        execution.getVariableScopeKey();
-        String processInstID = execution.getProcessInstanceId();
-        String activityId = execution.getCurrentActivityId();
-        String activityInstId = execution.getActivityInstanceId();
-        String activityName = execution.getCurrentActivityName();
-        String executionId = execution.getId();
-        soarActivityInstService.add(processInstID, activityId, activityInstId, activityName, executionId, "结束");
     }
 
     @Override

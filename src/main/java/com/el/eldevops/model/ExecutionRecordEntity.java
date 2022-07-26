@@ -52,4 +52,8 @@ public class ExecutionRecordEntity {
     @ApiModelProperty("参数信息")
     @TableField("param_json")
     private String paramJson;
+
+    @ApiModelProperty("处理人")
+    @TableField("assignee")
+    private String assignee;
 }

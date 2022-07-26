@@ -1,10 +1,9 @@
 package com.el.eldevops.bpm.handle.execution;
 
-import com.central.msargus.soar.impl.bpm.executor.SoarServiceExecutorFactory;
+import com.el.eldevops.bpm.handle.ExecutionHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,9 +14,6 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class AutomaticExecutionHandler implements ExecutionHandler {
-
-    @Autowired
-    private SoarServiceExecutorFactory soarServiceExecutorFactory;
 
     @Override
     public void execute(DelegateExecution execution) {
@@ -38,7 +34,7 @@ public class AutomaticExecutionHandler implements ExecutionHandler {
                 break;
         }
     }
-    
+
     @Override
     public void start(DelegateExecution execution) {
     }

@@ -1,11 +1,5 @@
 package com.el.eldevops.bpm.listener;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.central.msargus.soar.impl.bpm.handler.AutomaticTaskHandler;
-import com.central.msargus.soar.impl.bpm.handler.UserTaskHandler;
-import com.central.msargus.soar.impl.service.IPlaybookInstService;
-import com.central.msargus.soar.impl.util.Constants;
 import com.el.eldevops.bpm.handle.task.AutomaticTaskHandler;
 import com.el.eldevops.bpm.handle.task.UserTaskHandler;
 import com.el.eldevops.service.IPlaybookInstanceService;
@@ -41,7 +35,7 @@ public class GlobalTaskListener implements TaskListener {
 
     @Override
     public void notify(DelegateTask delegateTask) {
-        log.info("delegateTask------------------> " + delegateTask.getName() + "----------->" + delegateTask.getEventName() + "----->" + delegateTask.getBpmnModelElementInstance().getElementType().getTypeName() + "--->" + JSON.toJSONString(((TaskEntity) delegateTask).getPersistentState(), SerializerFeature.DisableCircularReferenceDetect));
+        log.info("delegateTask------------------> " + delegateTask.getName() + "----------->" + delegateTask.getEventName() + "----->" + delegateTask.getBpmnModelElementInstance().getElementType().getTypeName() + "--->");
 
         String processInstanceId = delegateTask.getProcessInstanceId();
         String eventName = delegateTask.getEventName();

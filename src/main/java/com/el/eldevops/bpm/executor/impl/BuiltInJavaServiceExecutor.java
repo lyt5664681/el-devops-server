@@ -1,22 +1,15 @@
 package com.el.eldevops.bpm.executor.impl;
 
-import com.central.common.model.Result;
-import com.central.msargus.soar.impl.bpm.adapter.SoarParamAdapter;
-import com.central.msargus.soar.impl.bpm.model.TaskExecuteVO;
-import com.central.msargus.soar.impl.model.SoarParamsEntity;
-import com.central.msargus.soar.impl.model.SoarPlaybookEntity;
-import com.central.msargus.soar.impl.model.SoarServiceEntity;
-import com.central.msargus.soar.impl.model.pojo.ParamInstPOJO;
-import com.central.msargus.soar.impl.service.IPlaybookInstService;
-import com.central.msargus.soar.impl.service.ISoarActivityInstService;
-import com.central.msargus.soar.impl.service.ISoarParamsService;
-import com.central.msargus.soar.impl.util.Constants;
+import com.el.eldevops.bpm.adapter.ParamAdapter;
 import com.el.eldevops.bpm.executor.ServiceExecutorInterface;
+import com.el.eldevops.bpm.model.ParamInstPOJO;
 import com.el.eldevops.bpm.model.TaskExecuteVO;
 import com.el.eldevops.model.ELServiceEntity;
 import com.el.eldevops.model.ParamsInstanceEntity;
 import com.el.eldevops.model.PlaybookDefineEntity;
+import com.el.eldevops.service.IExecutionRecordService;
 import com.el.eldevops.service.IParamsInstanceService;
+import com.el.eldevops.service.IPlaybookInstanceService;
 import com.el.eldevops.util.Constants;
 import com.el.eldevops.util.Result;
 import com.google.gson.Gson;
@@ -53,14 +46,14 @@ public class BuiltInJavaServiceExecutor implements ServiceExecutorInterface {
     private IParamsInstanceService iParamsInstanceService;
 
     @Resource
-    private SoarParamAdapter soarParamAdapter;
+    private ParamAdapter paramAdapter;
 
     @Resource
-    private ISoarActivityInstService soarActivityInstService;
+    private IExecutionRecordService executionRecordService;
 
     @Lazy
     @Autowired
-    private IPlaybookInstService playbookInstService;
+    private IPlaybookInstanceService playbookInstanceService;
 
     @Override
     public Result execute(DelegateTask delegateTask, PlaybookDefineEntity playbook, ELServiceEntity serviceEntity) {
@@ -94,15 +87,15 @@ public class BuiltInJavaServiceExecutor implements ServiceExecutorInterface {
              * step4 : 执行脚本
              * step5 : 获得脚本执行结果
              */
-            paramInstPOJOList = soarParamAdapter.paramAdapter(paramsInstanceEntityList, processInstId);
-            Object result = this.call(soarParamsEntityList, serviceEntity, taskExecuteVO);
+            paramInstPOJOList = paramAdapter.paramAdapter(paramsInstanceEntityList, processInstId);
+            Object result = this.call(paramsInstanceEntityList, serviceEntity, taskExecuteVO);
 
             // step5 : 拿到执行结果设置出参
-            ParamInstPOJO outputParamInstPOJO = soarParamAdapter.outputParamAdapter(soarParamsEntityList, processInstId, result);
+            ParamInstPOJO outputParamInstPOJO = paramAdapter.outputParamAdapter(paramsInstanceEntityList, processInstId, result);
             paramInstPOJOList.add(outputParamInstPOJO);
 
             String paramJSONStr = gson.toJson(paramInstPOJOList);
-            soarActivityInstService.fillingByTaskId(taskId, serviceId, paramJSONStr);
+            executionRecordService.fillingByTaskId(taskId, serviceId, paramJSONStr);
 
             return Result.succeed();
         } catch (Exception e) {
@@ -114,10 +107,10 @@ public class BuiltInJavaServiceExecutor implements ServiceExecutorInterface {
             } catch (Exception e2) {
             }
             String paramJSONStr = gson.toJson(paramInstPOJOList);
-            soarActivityInstService.feedBackError(taskId, serviceId, paramJSONStr, errorMessage);
+            executionRecordService.feedBackError(taskId, serviceId, paramJSONStr, errorMessage);
 //            soarActivityInstService.add(activityInstId, processInstId, errorMessage, Constants.ACTIVITY_INST_STATUS_ERROR, serviceId, paramJSONStr);
             // 剧本实例状态改为异常
-            playbookInstService.instStatusChange(processInstId, Constants.PLAYBOOK_INST_STATUS_EXCEPTION);
+            playbookInstanceService.instStatusChange(processInstId, Constants.PLAYBOOK_INST_STATUS_EXCEPTION);
             return Result.failed(errorMessage);
         }
     }
@@ -139,7 +132,7 @@ public class BuiltInJavaServiceExecutor implements ServiceExecutorInterface {
         String processInstId = taskExecuteVO.getProcessInstId();
 
         // step3 : 对参数进行适配与赋值，并获得适配后的参数列表
-        List<ParamInstPOJO> paramInstPOJOList = soarParamAdapter.paramAdapter(soarParamsEntityList, processInstId);
+        List<ParamInstPOJO> paramInstPOJOList = paramAdapter.paramAdapter(soarParamsEntityList, processInstId);
 
         Object[] inputParamsValues = paramInstPOJOList.stream().map(ParamInstPOJO::getParamValue).collect(Collectors.toList()).toArray();
         Class[] inputParamClasses = new Class[paramInstPOJOList.size()];

@@ -37,7 +37,7 @@ public class UserTaskHandler extends AbstractTaskHandler {
     public void assignment(DelegateTask delegateTask) {
         String taskId = delegateTask.getId();
         String assignee = delegateTask.getAssignee();
-//        soarActivityInstService.entrustByTaskId(taskId, assignee); // 增加环节处理人
+        executionRecordService.entrustByTaskId(taskId, assignee); // 增加环节处理人
     }
 
     @Override

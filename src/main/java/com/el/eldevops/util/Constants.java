@@ -25,6 +25,12 @@ public class Constants {
     public static final int PLAYBOOK_INST_STATUS_EXCEPTION = 3; //异常终止
     public static final int PLAYBOOK_INST_STATUS_FINISHED = 4; //已完结
 
+    //=======================活动实例执行状态4正常5异常========================================
+    public static final int ACTIVITY_INST_STATUS_CREATE = 1;
+    public static final int ACTIVITY_INST_STATUS_HOLD = 3; // 待处理
+    public static final int ACTIVITY_INST_STATUS_NORMAL = 4; // 已处理
+    public static final int ACTIVITY_INST_STATUS_ERROR = 5; // 异常
+
     //=======================自动任务的标识========================================
     public static final String TASK_EVENT_TYPE_AUTOMATIC = "AUTOMATIC";
 
