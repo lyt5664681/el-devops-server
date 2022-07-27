@@ -19,6 +19,12 @@ public class Constants {
     public static final int PARAMS_OF_GLOBAL = 1; // 1全局参数(剧本参数)
     public static final int PARAMS_OF_SERVICE = 2; // 2环节参数(服务参数)
 
+    // ========================剧本状态=======================================
+    public static final int PLAYBOOK_STATUS_TEMP = 0; // 已生成，临时状态
+    public static final int PLAYBOOK_STATUS_CREATED = 1; // 已创建
+    public static final int PLAYBOOK_STATUS_DEPLOYED = 2; // 已发布
+    public static final int PLAYBOOK_STATUS_SUSPENDED = 3; // 已挂起
+    public static final int PLAYBOOK_STATUS_DRAFT = 4; // 草稿
     // ========================剧本实例状态:1运行中,2暂停,3异常终止,4已完结=======================================
     public static final int PLAYBOOK_INST_STATUS_RUNNING = 1; //运行中
     public static final int PLAYBOOK_INST_STATUS_PAUSE = 2; //暂停

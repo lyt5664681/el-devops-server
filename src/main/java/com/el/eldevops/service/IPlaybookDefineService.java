@@ -1,6 +1,9 @@
 package com.el.eldevops.service;
 
 import com.el.eldevops.model.PlaybookDefineEntity;
+import com.el.eldevops.model.vo.PlaybookDefineVO;
+
+import java.util.Map;
 
 /**
  * @author YunTao.Li
@@ -9,4 +12,12 @@ import com.el.eldevops.model.PlaybookDefineEntity;
  */
 public interface IPlaybookDefineService {
     PlaybookDefineEntity getPlaybookDefineByProcessDefId(String processDefId);
+
+    void createPlaybookDefine(PlaybookDefineVO playbookDefineVO);
+
+    void deployPlaybookByDefId(String bookDefId);
+
+    void startPlaybookByDefId(String bookDefId);
+
+    void startPlaybookWithCondition(String bookDefId, Map condition);
 }
